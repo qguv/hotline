@@ -22,6 +22,7 @@ SIP_FROM_HEADER = "<sip:1234@eventphone>"
 FALLBACK_FILES_DIR = "/tmp"
 
 PROMPT_REPEAT_DELAY_S = 3
+PROMPT_REPEATS = 5
 
 # for calculating playtime of a SLIN file
 SLIN_BITRATE = 15971.43
@@ -42,22 +43,32 @@ async def main(ivr: YateIVR):
 
     await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "yintro.slin"), complete=True)
 
-    while True:
+    repeats = 0
+    while repeats < PROMPT_REPEATS:
         await ivr.play_soundfile(play_audio)
         dur = os.path.getsize(play_audio) / SLIN_BITRATE
         digit = await ivr.read_dtmf_symbols(1, timeout_s=dur + additional_timeout_s)
+
         if dial_on_timeout and not digit:
-            return await send(ivr, callback, caller_id, priority)
+            await send(ivr, callback, caller_id, priority)
+            break
+
+        if digit:
+            repeats = 0
+        else:
+            repeats += 1
 
         dial_on_timeout = False
         play_audio = os.path.join(SOUNDS_PATH, "api", "root.slin")
         additional_timeout_s = PROMPT_REPEAT_DELAY_S
 
         if digit == '*':
-            return await send(ivr, callback, caller_id, priority)
+            await send(ivr, callback, caller_id, priority)
+            break
 
         if digit == "1":
             play_audio = os.path.join(SOUNDS_PATH, "music", "startup.slin")
+            repeats = -1
             additional_timeout_s = 1
 
         if digit == "5":
@@ -70,6 +81,8 @@ async def main(ivr: YateIVR):
         if digit == "8":
             priority = 8
             await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "priority.slin"), complete=True)
+
+    return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "goodbye.slin"), complete=True)
 
 
 async def send(ivr: YateIVR, callback: str, caller_id: str, priority: int):
