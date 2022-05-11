@@ -6,17 +6,17 @@ rule self
   command = ./configure --quiet
   generator = true
 
-rule txt2wav
-    command = flite -voice slt $in $out
+rule txt2sound
+    command = meta/.venv/bin/gtts-cli --lang en -f $in -o $out
 
-rule wav2slin
+rule sound2slin
     command = sox $in -t raw -r 8000 -c 1 $out
 
 build | build.ninja: self | meta/build.ninja.j2 meta/jinja2_render.py meta/Pipfile configure
 
 ## for f in inner_glob('src/**/*.txt')
-build sounds/{{ f }}.slin: wav2slin built/{{ f }}.wav
-build built/{{ f }}.wav: txt2wav src/{{ f }}.txt
+build sounds/{{ f }}.slin: sound2slin built/{{ f }}.mp3
+build built/{{ f }}.mp3: txt2sound src/{{ f }}.txt
 ## endfor
 
 # vi: set syntax=ninja ts=2 sts=2 sw=2 et:
