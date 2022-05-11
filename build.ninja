@@ -1,0 +1,22 @@
+builddir = built
+
+rule txt2wav
+    command = flite -voice slt $in $out
+
+rule wav2slin
+    command = sox $in -t raw -r 8000 -c 1 $out
+
+build sounds/api/root.slin: wav2slin built/api/root.wav
+build built/api/root.wav: txt2wav src/api/root.txt
+
+build sounds/api/enter_callback.slin: wav2slin built/api/enter_callback.wav
+build built/api/enter_callback.wav: txt2wav src/api/enter_callback.txt
+
+build sounds/api/callback_updated.slin: wav2slin built/api/callback_updated.wav
+build built/api/callback_updated.wav: txt2wav src/api/callback_updated.txt
+
+build sounds/api/priority.slin: wav2slin built/api/priority.wav
+build built/api/priority.wav: txt2wav src/api/priority.txt
+
+build sounds/api/intro.slin: wav2slin built/api/intro.wav
+build built/api/intro.wav: txt2wav src/api/intro.txt
