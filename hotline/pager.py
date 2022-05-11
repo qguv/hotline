@@ -71,6 +71,11 @@ async def main(ivr: YateIVR):
             repeats = -1
             additional_timeout_s = 1
 
+        if digit == "2":
+            play_audio = os.path.join(SOUNDS_PATH, "music", "mym.slin")
+            repeats = -1
+            additional_timeout_s = 1
+
         if digit == "5":
             await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "enter_callback.slin"))
             maybe_callback = (await ivr.read_dtmf_until('#')).rstrip('#')
