@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+sudo systemctl start docker
+docker run -t hotline
