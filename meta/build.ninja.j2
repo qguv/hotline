@@ -1,0 +1,22 @@
+ninja_required_version = 1.7
+builddir = built
+
+rule self
+  description = generate build definitions
+  command = ./configure --quiet
+  generator = true
+
+rule txt2wav
+    command = flite -voice slt $in $out
+
+rule wav2slin
+    command = sox $in -t raw -r 8000 -c 1 $out
+
+build | build.ninja: self | meta/build.ninja.j2 meta/jinja2_render.py meta/Pipfile configure
+
+## for f in inner_glob('src/**/*.txt')
+build sounds/{{ f }}.slin: wav2slin built/{{ f }}.wav
+build built/{{ f }}.wav: txt2wav src/{{ f }}.txt
+## endfor
+
+# vi: set syntax=ninja ts=2 sts=2 sw=2 et:
