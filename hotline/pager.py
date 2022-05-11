@@ -100,7 +100,7 @@ async def send(ivr: YateIVR, callback: str, caller_id: str, priority: int):
             f.write(repr(headers) + "\n")
         print(error_message)
     else:
-        await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "success.slin"), complete=True)
+        await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "page_sent.slin"), complete=True)
         await asyncio.sleep(0.5)
 
 

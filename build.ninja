@@ -20,3 +20,6 @@ build built/api/priority.wav: txt2wav src/api/priority.txt
 
 build sounds/api/intro.slin: wav2slin built/api/intro.wav
 build built/api/intro.wav: txt2wav src/api/intro.txt
+
+build sounds/api/page_sent.slin: wav2slin built/api/page_sent.wav
+build built/api/page_sent.wav: txt2wav src/api/page_sent.txt
