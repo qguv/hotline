@@ -31,7 +31,7 @@ SLIN_BITRATE = 15971.43
 async def main(ivr: YateIVR):
     caller_id = ivr.call_params.get("caller", "")
     caller_id = re.sub("[^\\d]", "", caller_id)
-    caller_id = re.sub("^\\+", "00", caller_id)
+    caller_id = re.sub("^0000", "+", caller_id)
 
     callback = caller_id
     priority = 3
