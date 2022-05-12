@@ -2,4 +2,4 @@
 set -e
 
 sudo systemctl start docker
-docker run -t hotline
+docker run -t sip-pager
