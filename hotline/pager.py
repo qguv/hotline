@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import asyncio
+from configparser import ConfigParser
 import datetime
+import functools
 import logging
 import os
 import re
@@ -11,24 +13,31 @@ from yate.protocol import MessageRequest
 from yate.ivr import YateIVR
 
 LOG_FILE = "/tmp/corona-ivr.log"
-
 SOUNDS_PATH = "/opt/sounds"
-URL = "https://hookb.in/yDL1djMbXZUeWb73yzkg"
-API_TOKEN = "12345"
-FORWARD_PHONE_ADDRESS = "sip/2001"
-LINE = "test_line"
-SIP_FROM_HEADER = "<sip:1234@eventphone>"
-
+CONFIG_PATH = "/etc/yate"
 FALLBACK_FILES_DIR = "/tmp"
-
-PROMPT_REPEAT_DELAY_S = 3
-PROMPT_REPEATS = 5
 
 # for calculating playtime of a SLIN file
 SLIN_BITRATE = 15971.43
 
 
-async def main(ivr: YateIVR):
+def read_config():
+    config = ConfigParser()
+
+    config.read(os.path.join(CONFIG_PATH, 'gotify.conf'))
+    assert 'gotify' in config
+    assert 'host' in config['gotify']
+    assert 'token' in config['gotify']
+
+    config.read(os.path.join(CONFIG_PATH, 'ivr.conf'))
+    assert 'ivr' in config
+    assert 'prompt_repeat_delay_sec' in config['ivr']
+    assert 'prompt_repeats' in config['ivr']
+
+    return config
+
+
+async def main(config: ConfigParser, ivr: YateIVR):
     caller_id = ivr.call_params.get("caller", "")
     caller_id = re.sub("[^\\d]", "", caller_id)
     caller_id = re.sub("^0000", "+", caller_id)
@@ -44,13 +53,13 @@ async def main(ivr: YateIVR):
     await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "music", "yintro.slin"), complete=True)
 
     repeats = 0
-    while repeats < PROMPT_REPEATS:
+    while repeats < int(config['ivr']['prompt_repeats']):
         await ivr.play_soundfile(play_audio)
         dur = os.path.getsize(play_audio) / SLIN_BITRATE
         digit = await ivr.read_dtmf_symbols(1, timeout_s=dur + additional_timeout_s)
 
         if dial_on_timeout and not digit:
-            await send(ivr, callback, caller_id, is_high_priority)
+            await send(config, ivr, callback, caller_id, is_high_priority)
             break
 
         if digit:
@@ -60,10 +69,10 @@ async def main(ivr: YateIVR):
 
         dial_on_timeout = False
         play_audio = os.path.join(SOUNDS_PATH, "phrases", "root.slin")
-        additional_timeout_s = PROMPT_REPEAT_DELAY_S
+        additional_timeout_s = float(config['ivr']['prompt_repeat_delay_sec'])
 
         if digit == '*':
-            await send(ivr, callback, caller_id, is_high_priority)
+            await send(config, ivr, callback, caller_id, is_high_priority)
             break
 
         if digit == "1":
@@ -94,7 +103,7 @@ async def main(ivr: YateIVR):
     return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)
 
 
-async def send(ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bool):
+async def send(config: ConfigParser, ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bool):
     message = f"tel:{callback}"
     if callback != caller_id:
         message += f" (from tel:{caller_id})"
@@ -104,12 +113,12 @@ async def send(ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bo
         "priority": 8 if is_high_priority else 3,
     }
     headers = {
-        "X-Gotify-Key": API_TOKEN,
+        "X-Gotify-Key": config['gotify']['token'],
     }
     success = True
     error_message = ""
     try:
-        api_result = requests.post(URL, data=data, headers=headers)
+        api_result = requests.post(f"https://{config['gotify']['host']}/message", data=data, headers=headers)
     except requests.exceptions.RequestException as e:
         success = False
         error_message = str(e) + str(e.message)
@@ -131,6 +140,8 @@ async def send(ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bo
         await asyncio.sleep(0.5)
 
 
-logging.basicConfig(filename=LOG_FILE, filemode="a+")
-app = YateIVR()
-app.run(main)
+if __name__ == "__main__":
+    config = read_config()
+    logging.basicConfig(filename=LOG_FILE, filemode="a+")
+    app = YateIVR()
+    app.run(functools.partial(main, config))
