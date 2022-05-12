@@ -81,11 +81,15 @@ async def main(ivr: YateIVR):
             maybe_callback = (await ivr.read_dtmf_until('#')).rstrip('#')
             if maybe_callback:
                 callback = maybe_callback
-                await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "callback_updated.slin"), complete=True)
+                play_audio = os.path.join(SOUNDS_PATH, "phrases", "callback_updated.slin")
+                repeats = -1
+                additional_timeout_s = 1
 
         if digit == "8":
             priority = 8
-            await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "priority.slin"), complete=True)
+            play_audio = os.path.join(SOUNDS_PATH, "phrases", "priority.slin")
+            repeats = -1
+            additional_timeout_s = 1
 
     return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)
 
