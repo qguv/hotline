@@ -2,4 +2,4 @@
 set -e
 
 sudo systemctl start docker
-docker build -t hotline .
+docker build -f meta/Dockerfile -t hotline .
