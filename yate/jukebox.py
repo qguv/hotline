@@ -10,6 +10,14 @@ SOUNDS_PATH = "/opt/sounds"
 # for calculating playtime of a SLIN file
 SLIN_BITRATE = 15971.43
 
+playlist = {
+    "1": "startup",
+    "2": "mym",
+    "3": "nouvelle",
+    "4": "helixnebula",
+    "9": "geil",
+}
+
 
 async def jukebox(config: ConfigParser, ivr: YateIVR, caller_id: str):
     play_audio = os.path.join(SOUNDS_PATH, "phrases", "jukebox.slin")
@@ -30,27 +38,16 @@ async def jukebox(config: ConfigParser, ivr: YateIVR, caller_id: str):
         play_audio = os.path.join(SOUNDS_PATH, "phrases", "jukebox.slin")
         additional_timeout_s = float(config['ivr']['prompt_repeat_delay_sec'])
 
-        if digit == "1":
-            play_audio = os.path.join(SOUNDS_PATH, "music", "startup.slin")
+        if digit == '#':
+            play_audio = os.path.join(SOUNDS_PATH, "phrases", f"songs.slin")
             repeats = -1
-            additional_timeout_s = 1
 
-        if digit == "2":
-            play_audio = os.path.join(SOUNDS_PATH, "music", "mym.slin")
-            repeats = -1
-            additional_timeout_s = 1
-
-        if digit == "3":
-            play_audio = os.path.join(SOUNDS_PATH, "music", "geil.slin")
-            repeats = -1
-            additional_timeout_s = 1
-
-        if digit == "4":
-            play_audio = os.path.join(SOUNDS_PATH, "music", "helixnebula.slin")
-            repeats = -1
-            additional_timeout_s = 1
-
-        if digit == "5":
-            play_audio = os.path.join(SOUNDS_PATH, "music", "nouvelle.slin")
-            repeats = -1
-            additional_timeout_s = 1
+        elif digit:
+            try:
+                song = playlist[digit]
+            except KeyError:
+                pass
+            else:
+                play_audio = os.path.join(SOUNDS_PATH, "music", f"{song}.slin")
+                repeats = -1
+                additional_timeout_s = 1

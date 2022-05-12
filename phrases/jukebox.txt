@@ -1,1 +1,1 @@
-Welcome to the jukebox! Press 1 or 2 to select a song.
+Welcome to the jukebox! Press a digit to select a song, or press pound for a list.
