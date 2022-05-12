@@ -20,6 +20,6 @@ COPY config /etc/yate
 
 COPY sounds /opt/sounds
 
-COPY hotline /usr/share/yate/scripts/
+COPY yate /usr/share/yate/scripts/
 
 ENTRYPOINT [ "/usr/bin/yate", "upstream_broke_it" ]
