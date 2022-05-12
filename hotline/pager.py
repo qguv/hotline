@@ -34,7 +34,7 @@ async def main(ivr: YateIVR):
     caller_id = re.sub("^0000", "+", caller_id)
 
     callback = caller_id
-    priority = 3
+    is_high_priority = False
 
     # rotary phone compatibility
     dial_on_timeout = True
@@ -50,7 +50,7 @@ async def main(ivr: YateIVR):
         digit = await ivr.read_dtmf_symbols(1, timeout_s=dur + additional_timeout_s)
 
         if dial_on_timeout and not digit:
-            await send(ivr, callback, caller_id, priority)
+            await send(ivr, callback, caller_id, is_high_priority)
             break
 
         if digit:
@@ -63,7 +63,7 @@ async def main(ivr: YateIVR):
         additional_timeout_s = PROMPT_REPEAT_DELAY_S
 
         if digit == '*':
-            await send(ivr, callback, caller_id, priority)
+            await send(ivr, callback, caller_id, is_high_priority)
             break
 
         if digit == "1":
@@ -86,22 +86,22 @@ async def main(ivr: YateIVR):
                 additional_timeout_s = 1
 
         if digit == "8":
-            priority = 8
-            play_audio = os.path.join(SOUNDS_PATH, "phrases", "priority.slin")
+            is_high_priority = not is_high_priority
+            play_audio = os.path.join(SOUNDS_PATH, "phrases", "priority_high.slin" if is_high_priority else "priority_normal.slin")
             repeats = -1
             additional_timeout_s = 1
 
     return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)
 
 
-async def send(ivr: YateIVR, callback: str, caller_id: str, priority: int):
+async def send(ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bool):
     message = f"tel:{callback}"
     if callback != caller_id:
         message += f" (from tel:{caller_id})"
     data = {
         "title": "EPVPN page received",
         "message": message,
-        "priority": priority,
+        "priority": 8 if is_high_priority else 3,
     }
     headers = {
         "X-Gotify-Key": API_TOKEN,

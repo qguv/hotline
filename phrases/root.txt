@@ -1,4 +1,4 @@
 To customize the callback number, press 5.
-To mark as high-priority, press 8.
+To adjust priority, press 8.
 To send the page, press star.
 For hold music, press 1, or 2.
