@@ -16,7 +16,6 @@ First, download the source code onto your VPS:
 ``` sh
 git clone https://github.com/eventphone/hotline
 cd hotline
-git submodule update --init --recursive
 ```
 
 Next, enter your credentials:
