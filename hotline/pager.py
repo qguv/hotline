@@ -38,10 +38,10 @@ async def main(ivr: YateIVR):
 
     # rotary phone compatibility
     dial_on_timeout = True
-    play_audio = os.path.join(SOUNDS_PATH, "api", "intro.slin")
+    play_audio = os.path.join(SOUNDS_PATH, "phrases", "intro.slin")
     additional_timeout_s = 5
 
-    await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "yintro.slin"), complete=True)
+    await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "music", "yintro.slin"), complete=True)
 
     repeats = 0
     while repeats < PROMPT_REPEATS:
@@ -59,7 +59,7 @@ async def main(ivr: YateIVR):
             repeats += 1
 
         dial_on_timeout = False
-        play_audio = os.path.join(SOUNDS_PATH, "api", "root.slin")
+        play_audio = os.path.join(SOUNDS_PATH, "phrases", "root.slin")
         additional_timeout_s = PROMPT_REPEAT_DELAY_S
 
         if digit == '*':
@@ -77,17 +77,17 @@ async def main(ivr: YateIVR):
             additional_timeout_s = 1
 
         if digit == "5":
-            await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "enter_callback.slin"))
+            await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "enter_callback.slin"))
             maybe_callback = (await ivr.read_dtmf_until('#')).rstrip('#')
             if maybe_callback:
                 callback = maybe_callback
-                await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "callback_updated.slin"), complete=True)
+                await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "callback_updated.slin"), complete=True)
 
         if digit == "8":
             priority = 8
-            await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "priority.slin"), complete=True)
+            await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "priority.slin"), complete=True)
 
-    return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "goodbye.slin"), complete=True)
+    return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)
 
 
 async def send(ivr: YateIVR, callback: str, caller_id: str, priority: int):
@@ -123,7 +123,7 @@ async def send(ivr: YateIVR, callback: str, caller_id: str, priority: int):
             f.write(repr(headers) + "\n")
         print(error_message)
     else:
-        await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "api", "page_sent.slin"), complete=True)
+        await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "page_sent.slin"), complete=True)
         await asyncio.sleep(0.5)
 
 
