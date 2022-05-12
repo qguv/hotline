@@ -39,5 +39,3 @@ async def jukebox(config: ConfigParser, ivr: YateIVR, caller_id: str):
             play_audio = os.path.join(SOUNDS_PATH, "music", "mym.slin")
             repeats = -1
             additional_timeout_s = 1
-
-    return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)

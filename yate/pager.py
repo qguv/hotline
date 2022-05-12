@@ -62,8 +62,6 @@ async def pager(config: ConfigParser, ivr: YateIVR, caller_id: str):
             repeats = -1
             additional_timeout_s = 1
 
-    return await ivr.play_soundfile(os.path.join(SOUNDS_PATH, "phrases", "goodbye.slin"), complete=True)
-
 
 async def send(config: ConfigParser, ivr: YateIVR, callback: str, caller_id: str, is_high_priority: bool):
     message = f"tel:{callback}"
