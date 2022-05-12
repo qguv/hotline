@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+docker rmi -f sip-pager
 rm -f meta/.ninja_log
 rm -f build.ninja
 rm -fr meta/.venv/
+echo cleaned
