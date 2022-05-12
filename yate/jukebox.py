@@ -44,3 +44,8 @@ async def jukebox(config: ConfigParser, ivr: YateIVR, caller_id: str):
             play_audio = os.path.join(SOUNDS_PATH, "music", "geil.slin")
             repeats = -1
             additional_timeout_s = 1
+
+        if digit == "4":
+            play_audio = os.path.join(SOUNDS_PATH, "music", "helixnebula.slin")
+            repeats = -1
+            additional_timeout_s = 1
